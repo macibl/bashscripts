@@ -3,6 +3,11 @@ set -euo pipefail   # -e exit immediately if error, -u give error if you referen
                     # -o pipefail exit if any error in a pipe
 IFS=$'\n\t'         # word splitting will happen only on newlines and tab characters
 
+# to debug, use:
+# -x : displays command traces prior to executing them
+# -n : does not displays commands just check for syntax errors
+# -v : displays the commands while they are read  
+
 error() { 
     echo "ERROR : invalid parameters!" >&2 
     echo "use -h option for more information" >&2 
