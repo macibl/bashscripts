@@ -1,0 +1,529 @@
+#!/bin/bash
+set -euo pipefail   # -e exit immediately if error, -u give error if you reference a variable not previously defined
+                    # -o pipefail exit if any error in a pipe
+IFS=$'\n\t'         # word splitting will happen only on newlines and tab characters
+
+error() { 
+    echo "ERROR : invalid parameters!" >&2 
+    echo "use -h option for more information" >&2 
+    exit 1 
+} 
+
+usage() {
+  local script_name=$(basename ${0})
+
+  echo "Usage:"
+  echo "${script_name} [options] <directory_where_to_search>"
+  echo "options: -t, --type <type> give type of shebang to look for, default is bash"
+  echo "Examples: ${script_name} -t bash /etc"
+  echo "Will search recursively for files with shebang #!/usr/bin/bash in /etc directory" 
+}
+
+find_bash_files() {
+# recherche dans un repertoire les fichiers bash, donc commancant explicitement avec le shebang #!/bin/bash
+# $1: type of shebang 
+# $2: directory where to search for
+
+  readonly SHEBANG_TYPE=${1}
+  dir_to_search=${2}
+  echo "SHEBANG_TYPE: ${SHEBANG_TYPE}"
+  echo "dir_to_search: ${dir_to_search}"
+  
+  # Look for files without some extension like .conf, .local, ... sur un seul niveau de directory, uniquement les fichiers
+  # puis affiche le nom du fichier et la première ligne, sans afficher les erreurs eventuelles
+  # solution avec find puis head : pb car affiche le nom du fichier et la première ligne, il faudrait n'afficher le nom 
+  # du fichier que quand la 1ere ligne contient le shebang recherche 
+  #find /etc ! -name "*.conf" ! -name "*.local" ! -name "*.cfg" ! -name "*.ini" -maxdepth 1 -type f |xargs head -n 1 2>/dev/null
+  # solution with find then egrep : pour afficher le nom de fichier uniquement si ca match, utiliser grep avec -H
+  #find /etc -maxdepth 10 -type f ! -name "*.conf" ! -name "*.ini" 2>/dev/null |xargs egrep -H '^#!/bin/bash' 2>/dev/null
+  # affichage est nomfichier:pattern remplace par nomfichier tab tab pattern
+  
+  shebang_pattern="^#!/bin/$SHEBANG_TYPE"
+  echo "pattern used is: ${shebang_pattern}"
+  #OK find /etc -maxdepth 10 -type f ! -name "*.conf" ! -name "*.ini" 2>/dev/null |xargs egrep -H '^#!/bin/bash' 2>/dev/null | \
+  #sed "s/:/\t\t/"
+  find ${dir_to_search} -maxdepth 10 -type f ! -name "*.conf" ! -name "*.ini" 2>/dev/null | \
+    xargs grep -H "${shebang_pattern}" 2>/dev/null | \
+    sed "s/:/\t\t/"
+
+# TODO display only file names and path   
+# TODO : explore these files
+#/etc/xdg/lxsession/LXDE-pi/sshpwd.sh  #!/bin/bash
+#/etc/init.d/nfs-common  #!/bin/bash
+}
+
+check_options() {
+  echo "nb of param: $#"
+  [[ $# -lt 1 ]] && error   # if no parameter given, error
+  
+# -u option unused. Parameters are quoted when output from getops and unquoted correctly later
+# -q option unused. If errors when writing parameters of a command, getopt will tell you 
+# -o : short options 
+# -l : long options 
+# option -t is written using a column 't:' because there is a required argument   
+  options=$(getopt -s bash -o h,t: -l help,type: -- "$@") 
+  echo "options are: ${options}"   # for instance: -t 'bash' -- '/etc'
+
+# positional parameters $1, $2, ... are reformated with options 
+  IFS=$' \n\t'     # space added to IFS, else set -- doesn't work correctly
+  #set -- $options  # positional parameters are set again with content of $options. But parameters are quoted, not usable
+  set -- ${options//\'/}  # positional parameters are set again with content of $options. Also suppress quoting, no more necessary
+  IFS=$'\n\t'      # IFS again to its correct value
+  echo "after set --, nb of positional param is: ${#} and are now: $@ (and must not be quoted)"
+  
+  # default value if -t option not used
+  shebang_type="bash"
+
+  while true; do 
+    case "$1" in 
+        -h|--help) 
+            echo "go to usage"
+            usage 
+            shift;; # positional parameters are shifted of 1 position 
+        -t|--type) 
+            shebang_type=${2}
+            shift 2;; # $1 and $2 are taken into account, parameters need to be shifted by 2 
+        --) # end of options 
+            echo "end of options detected, it is time to launch command"
+            # TODO : here can be added a test if ${2} exists, else error
+            find_bash_files ${shebang_type} ${2} 
+            break;;    # command is executed, we can exit this loop
+        *) # all other value for $1
+            echo "unknown value detected" 
+            error
+            shift;;  # never executed, because error will exit  
+    esac 
+  done
+}
+
+quoting() {
+# in https://google.github.io/styleguide/shellguide.html#s5.7-quoting
+
+  # 'Single' quotes indicate that no substitution is desired.
+  # "Double" quotes indicate that substitution is required/tolerated.
+
+  # Simple examples
+
+  # "quote command substitutions"
+  # Note that quotes nested inside "$()" don't need escaping.
+  # flag="$(some_command and its args "$@" 'quoted separately')"
+  flag="$(sudo du "$@")"
+
+  # "quote variables"
+  echo "${flag}"
+
+  # Use arrays with quoted expansion for lists.
+  declare -a FLAGS
+  FLAGS=(-h -a -c -x --time='atime')
+  FLAGS=(-h -a -c -x --time=atime)      # same !
+  readonly FLAGS
+  #mybinary "${FLAGS[@]}"   # All elements of array, space-separated
+  echo "options are: ${FLAGS[@]}"
+  sudo du "${FLAGS[@]}" /tmp 2>/dev/null
+
+  # It's ok to not quote internal integer variables.
+  if (( $# > 1 )); then       # $# is number of arguments, ((  )) used because arithmetic test
+    echo "ppid=${PPID}"       # PPID is Bash variable for parent process id
+  fi
+
+  # "never quote literal integers"
+  value=32
+  echo "${value}"
+  # "quote command substitutions", even when you expect integers
+  #number="$(generate_number)"    $(command) is a command substitution 
+  number="$(wc -c testBashScripts | awk '{print $1}')"
+  echo "${number}"
+
+  # "prefer quoting words", not compulsory
+  readonly USE_INTEGER='true'
+
+  # "quote shell meta characters"
+  echo 'Hello stranger, and well met. Earn lots of $$$'
+  echo "Process $$: Done making \$\$\$."
+
+  # "command options or path names"
+  # ($1 is assumed to contain a value here)
+  grep -li Hugo /dev/null "$1"
+
+  # Less simple examples
+  # "quote variables, unless proven false": ccs might be empty
+  git send-email --to "${reviewers}" ${ccs:+"--cc" "${ccs}"}
+
+  # Positional parameter precautions: $1 might be unset
+  # Single quotes leave regex as-is.
+  grep -cP '([Ss]pecial|\|?characters*)$' ${1:+"$1"}
+
+  # For passing on arguments,
+  # "$@" is right almost every time, and
+  #  $* is wrong almost every time:
+  #
+  # * $* and $@ will split on spaces, clobbering up arguments
+  #   that contain spaces and dropping empty strings;
+  # * "$@" will retain arguments as-is, so no args
+  #   provided will result in no args being passed on;
+  #   This is in most cases what you want to use for passing
+  #   on arguments.
+  # * "$*" expands to one argument, with all args joined
+  #   by (usually) spaces,
+  #   so no args provided will result in one empty string
+  #   being passed on.
+  # (Consult `man bash` for the nit-grits ;-)
+
+  (set -- 1 "2 two" "3 three tres"; echo $#; set -- "$*"; echo "$#, $@")
+  (set -- 1 "2 two" "3 three tres"; echo $#; set -- "$@"; echo "$#, $@")
+
+}
+
+variables() {
+  NAME="John Deere"
+  echo $NAME
+  echo "$NAME"     # same as above
+  echo "${NAME}"   # same as above but better with {}
+  echo -e "${NAME} \nis my father"     # -e enable interpretation of backslash escapes
+}
+
+# err is used with error_treatment
+err() {
+#  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*"
+}
+
+
+error_treatment1() {
+# using $?  (exit status of the most recently executed foreground pipeline)
+  myFile="toto.txt"
+  set +e              # to avoid exit on error
+  rm ${myFile}        # to be sure file doesn't exist
+  wc -l ${myFile}
+  if (( $? != 0 )) ; then 
+    err "file  ${myFile} doesn't exists" 
+    exit 1            # error ==> exit from script
+  fi
+  set -e              # set -e reestablished
+}
+
+error_treatment2() {
+# using if ! command ; then
+  myFile="toto.txt"
+  set +e              # to avoid exit on error
+  rm ${myFile}        # to be sure file doesn't exist
+  if ! wc -l ${myFile} ; then
+  # if ! ( wc -l ${myFile} ) ; then     # same
+    err "file  ${myFile} doesn't exists anymore" 
+    exit 1            # error ==> exit from script
+  fi
+  set -e              # set -e reestablished
+}
+
+error_treatment_with_mv_command() {
+  declare -a file_list       # use an indexed array for list of files
+  file_list=( toto1.txt toto2.txt )
+  touch "${file_list[@]}"
+  dest_dir="$(pwd)/test"
+  set +e              # to avoid exit on error
+
+mv "${file_list[@]}" "${dest_dir}/"
+  if (( $? != 0 )); then
+  #  echo "Unable to move ${file_list[*]} to ${dest_dir}" >&2    if sent to stderr only
+    echo "Unable to move ${file_list[@]} to ${dest_dir}"
+    exit 1
+  fi
+  set -e              # set -e reestablished
+}
+
+check_file() {
+  myFile="toto.txt"
+  if [[ -e ${myFile} ]] ; then      # test file with -e as exists
+    echo "file ${myFile} exists"
+    else 
+      err "file  ${myFile} doesn't exists"
+      echo " this never happens"
+      exit 1          # error ==> exit from script
+  fi
+}
+
+
+get_name() {
+  echo "John"
+}
+
+myFunc() {
+  local myresult='some value'  # myresult is local to myFunc (and to commands it invokes)
+  echo $myresult               # 
+}
+
+command_substitution() {
+  echo "You are $(get_name)"
+  # how to return value from a function, by command substitution
+  result="$(myFunc)"  
+  echo "Result of myFunc is : ${result}"
+
+  echo "$(date)"
+  echo -e "$(ls) \n ------"
+  echo "$(cd .. ; ls)"
+}
+
+
+
+arithmetic() {
+# see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Arithmetic
+  echo "toto"
+}
+
+parameter_expansion_indirection() {
+# see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+
+toto="222"
+titi="toto"
+echo "${!titi}"     # will display 222
+}
+
+parameter_expansion_substring() {
+# see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+
+toto="abcdefghijkl"
+
+#  ${#parameter}     give length of parameter in number of characters
+echo "lengh of ${toto} is: ${#toto} characters"
+
+# ${parameter:offset}
+echo "${toto:3}"          # will display defghijkl
+
+# ${parameter:offset:length}
+echo "${toto:3:4}"        # will display defg
+echo "${toto:3:(-2)}"     # will display defghij    -2 from end of string
+echo "${toto:(-3):(-2)}"  # will display j    from -3 characters to -2 from end of string
+echo "${toto: -3: -2}"    # same
+} 
+
+parameter_expansion_substring_positional_parameter() {
+# see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+# ${parameter:offset:length}
+  echo "${1}"
+  echo "${1:3:4}"     # if $1 is abcdefghij, will display defg 
+  echo "${1:3:10}"    # if $1 is abcdefghij, will display defghij (all what it can display) 
+  
+# see also use of ${@:offset:length}
+}
+
+parameter_expansion_substring_positional_array() {
+# see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+# ${parameter:offset:length}
+  myarray=(abcdefgh 12 34 56 78 90 ab cd) 
+  echo "${myarray[0]:3:4}"      # will display defg
+
+  # with @, bash look on all members of array  
+  echo "${myarray[@]:3:4}"      # will display 56 78 90 ab
+}
+
+parameter_expansion_substring_prefix() {
+# see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+# ${!prefix*}
+# ${!prefix@}
+
+  toti=0000
+  toto=1234
+  toto1=abcd
+  toto2=defg
+  toto3=hijk
+
+  echo "${!toto*}"     # will display toto toto1 toto2 toto3 but separated with IFS 
+  echo "${!toto@}"     # will display toto toto1 toto2 toto3 
+
+  for i in ${!toto@}; do   # will display contents of each variables, need !
+    echo -n "${!i} "       # with -n on one line, without, one per line
+  done
+}
+
+parameter_expansion_substring_array() {
+# see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+# ${!name[@]}      expands to the list of array indices (keys) assigned in name
+# ${!name[*]}
+
+  local myarray=(abcd efgh ijkl mnop)
+  local myarray=('abcd' 'efgh' 'ijkl' 'mnop')   # same
+  
+  echo ${!myarray[@]}           # display indexes, space-separated: 0 1 2 3
+  echo "${!myarray[@]}"         # same
+  echo ${myarray[@]}            # display all elements, space-separated: abcd efgh ijkl mnop
+  echo "${myarray[@]}"          # same 
+}
+
+parameter_expansion_substitution() {
+# see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+
+  local toto=abracadabra
+  local prefix=abra
+  local suffix=dabra
+  local repwith=hello
+  local tot=0034
+  
+# ${FOO%suffix}     Remove suffix
+
+# ${parameter#word}    Remove prefix 
+  echo "${toto#${prefix}}"    # display cadabra
+  echo "${tot#0}"             # display 034
+# TODO A CONTINUER avec des pattern correctes echo "${tot##+(0)}"        
+
+
+# ${FOO%%suffix}    Remove long suffix
+
+
+# ${FOO##prefix}    Remove long prefix
+
+
+# ${FOO/from/to}    Replace first match
+
+
+# ${FOO//from/to}   Replace all
+
+
+# ${FOO/%from/to}  Replace suffix
+
+
+# ${FOO/#from/to}   Replace prefix
+  substit="${toto/#abra/hello}"
+  echo "test a: ${substit}"                       # display hellocadabra
+  # with variable for from and to 
+  substit="${toto/#${prefix}/${repwith}}"
+  echo "test b: ${substit}"                       # display hellocadabra
+  echo "test c: ${toto/#${prefix}/${repwith}}"    # same  
+# echo "${toto/#prefix/repwith}"        # if written like this, doesn't work, prefix must be used as ${prefix}, the same for repwith
+
+  # the same using sed
+  substit="$(echo "${toto}" | sed -e 's/^abra/hello/')"
+  echo "test d: ${substit}"                       # display hellocadabra
+  # sed and variables
+  substit="$(echo "${toto}" | sed -e 's/^${prefix}/${repwith}/')"     
+  echo "test e: ${substit}"                       # display abracadabra et pas hellocadabra !!! TODO
+}
+
+
+parameter_expansion() {
+#TODO : add here an example of what would be the same with sed 
+  name="John"
+  echo ${name}
+  echo ${name/J/j}    #=> "john" (substitution)
+  echo ${name:0:2}    #=> "Jo" (slicing)
+  echo ${name::2}     #=> "Jo" (slicing)
+  echo ${name::-1}    #=> "Joh" (slicing)
+  echo ${name:(-1)}   #=> "n" (slicing from right)
+  echo ${name:(-2):1} #=> "h" (slicing from right)
+  echo ${food:-Cake}  #=> $food or "Cake"
+
+  length=2
+  echo ${name:0:length}  #=> "Jo"
+} 
+
+use_conditions() {
+# [[ -z STRING ]] Empty string
+
+  local my_string=""
+  [[ -z ${my_string} ]] && echo "condition is true, string is empty"
+  
+  # or 
+  if [[ -z ${my_string} ]]; then 
+    echo "condition is true, string is empty"
+  else
+    echo "condition is false, string is not empty"   
+  fi
+  
+# [[ -n STRING ]] Not empty string
+
+  local my_string="toto"
+  [[ -n ${my_string} ]] && echo "condition is true, string is not empty"
+  
+# [[ STRING == STRING ]] Equal
+# [[ STRING != STRING ]] Not Equal
+
+  local my_string="toto"
+  [[ ${my_string} == "toto" ]] && echo "condition is true, string is the same"
+  [[ ${my_string} != "titi" ]] && echo "condition is true, string is different"  
+  
+# [[ NUM -eq NUM ]] Equal
+# [[ NUM -ne NUM ]] Not equal
+
+ ls |wc -l    # return value of this command in general 0
+ [[ ${?} -eq 0 ]] && echo "condition is true, return value is 0"
+ [[ ${?} -ne 1 ]] && echo "condition is true, return value is not 1"
+ 
+# [[ NUM -lt NUM ]] Less than
+
+  echo "nb of param: $#"
+  
+  [[ $# -lt 2 ]] && echo "condition is true, nb of param lower than 2" 
+  
+  # or
+  
+  if [[ $# -lt 2 ]]; then 
+    echo "condition is true, nb of param lower than 2"
+  else
+    echo "Nb of param enough"   
+  fi  
+  
+# [[ NUM -le NUM ]] Less than or equal
+# [[ NUM -gt NUM ]] Greater than
+# [[ NUM -ge NUM ]] Greater than or equal
+# [[ STRING =~ STRING ]] Regexp
+  line=" aab"
+  pattern='[[:space:]]*?(a)b'
+  [[ $line =~ $pattern ]] && echo "condition is true, pattern is matching"
+
+# (( NUM > NUM )) Numeric conditions
+# <= >= < >
+# remember: The arithmetic expression (( expression )) is evaluated according to the rules (see Shell Arithmetic here:
+# https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Arithmetic
+# If the value of the expression is non-zero, the return status is 0; otherwise the return status is 1.
+
+  if (( $# > 1 )); then       # $# is number of arguments, ((  )) used because arithmetic test
+    echo "ppid=${PPID}"       # PPID is Bash variable for parent process id
+  fi
+
+ var=0
+ (( var = var + 1 ))
+ (( var++ ))
+ echo "value of var: ${var}"   # will display 2
+
+}
+
+user_menu() {
+# caution, there is no echo of what is written
+echo -e "choice to do \n 1 yes \n 2 no \n 3 perhaps ?"
+read my_menu_var
+case ${my_menu_var} in
+  1) echo "yes, why not" ;;
+  2) echo "no, why ?" ;;
+  3) echo "not an answer" ;; 
+esac
+}
+
+main() {
+#  check_options "$@"        # check options given when script launched. To test, use: bash testBashScripts -t bash /etc
+#  find_bash_files bash /etc   # script to find bash files recursively in a directory 
+#  quoting -h -s /etc       # to be continued
+#  variables                #(to be continued)
+#  error_treatment1         # using $?
+#  error_treatment2          # using if ! command ; then
+#  error_treatment_with_mv_command
+#  check_file
+#  command_substitution
+# TODO  arithmetic
+#  parameter_expansion_indirection
+#  parameter_expansion_substring
+#  parameter_expansion_substring_positional_parameter  abcdefghij  
+#  parameter_expansion_substring_positional_array
+#  parameter_expansion_substring_prefix
+#  parameter_expansion_substring_array
+#  parameter_expansion_substitution    #  TO BE CONTINUED
+   use_conditions "$@"
+# TODO parameter_expansion
+
+# TODO working with indexed array
+# TODO working with sed and awk (use Linux Mag HS102)
+#  user_menu
+# TODO use_of_shellcheck           # linuxMag HS 10 p.78
+# TODO use_of_test_u_with_bats     # linuxMag HS 10 p.81
+
+}
+
+main "$@"
