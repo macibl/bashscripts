@@ -1,0 +1,1192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=windows-1252"/>
+	<title>Bash scripting cheatsheet</title>
+	<meta name="generator" content="LibreOffice 6.4.0.3 (Windows)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="2020-08-05T16:12:05.743000000"/>
+	<meta name="description" content="Variables &middot; Functions &middot; Interpolation &middot; Brace expansions &middot; Loops &middot; Conditional execution &middot; Command substitution &middot; One-page guide to Bash scripting"/>
+	<meta name="" content="Bash scripting cheatsheet"/>
+	<meta name="app:pageurl" content="/bash.html"/>
+	<meta name="og:url" content="https://devhints.io/bash"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta name="created" content="00:00:00">
+	<meta name="created" content="00:00:00">
+	<meta name="created" content="00:00:00">
+	<style type="text/css">
+		td p { color: #334455; font-family: "apple-system", "BlinkMacSystemFont", "segoe ui", "roboto", "oxygen", "ubuntu", "cantarell", "fira sans", "droid sans", "helvetica neue", sans-serif; font-size: 9pt; line-height: 160% }
+		h1 { color: #334455; line-height: 160% }
+		h1.cjk { font-family: "apple-system", "BlinkMacSystemFont", "segoe ui", "roboto", "oxygen", "ubuntu", "cantarell", "fira sans", "droid sans", "helvetica neue", sans-serif }
+		h1.ctl { font-family: "apple-system", "BlinkMacSystemFont", "segoe ui", "roboto", "oxygen", "ubuntu", "cantarell", "fira sans", "droid sans", "helvetica neue", sans-serif }
+		p { color: #334455; font-family: "apple-system", "BlinkMacSystemFont", "segoe ui", "roboto", "oxygen", "ubuntu", "cantarell", "fira sans", "droid sans", "helvetica neue", sans-serif; font-size: 9pt; line-height: 160% }
+		pre { color: #334455; font-family: "cousine", "sfmono-regular", "Consolas", "Menlo", "liberation mono", "ubuntu mono", "Courier", monospace; line-height: 160% }
+		h2 { color: #334455; line-height: 160% }
+		h2.cjk { font-family: "NSimSun" }
+		h2.ctl { font-family: "Lucida Sans" }
+		h3 { color: #334455; line-height: 160% }
+		h3.cjk { font-family: "NSimSun" }
+		h3.ctl { font-family: "Lucida Sans" }
+		h4 { color: #334455; line-height: 160% }
+		h4.cjk { font-family: "NSimSun" }
+		h4.ctl { font-family: "Lucida Sans" }
+		th p { color: #334455; font-family: "apple-system", "BlinkMacSystemFont", "segoe ui", "roboto", "oxygen", "ubuntu", "cantarell", "fira sans", "droid sans", "helvetica neue", sans-serif; font-size: 9pt; line-height: 160% }
+		a:link { color: #26648e; background: transparent }
+		code { font-family: "cousine", "sfmono-regular", "Consolas", "Menlo", "liberation mono", "ubuntu mono", "Courier", monospace }
+		a:visited { color: #15234d; background: transparent }
+	</style>
+</head>
+<body lang="fr-FR" text="#334455" link="#26648e" vlink="#15234d" bgcolor="#f1f3f5" dir="ltr"><p>
+<br/>
+<br/>
+
+</p>
+<h1 class="western" style="margin-top: 0cm; margin-bottom: 0cm">Bash
+scripting&nbsp;<em>cheatsheet</em></h1>
+<p>This is a quick reference to getting started with Bash scripting.</p>
+<ul>
+	<li><p style="margin-bottom: 0cm"><a href="https://learnxinyminutes.com/docs/bash/">Learn
+	bash in y minutes</a> <em>(learnxinyminutes.com)</em> 
+	</p>
+	<li><p><a href="http://mywiki.wooledge.org/BashGuide">Bash Guide</a>
+	<em>(mywiki.wooledge.org)</em> 
+	</p>
+</ul>
+<h3 class="western"><a name="example"></a>Example</h3>
+<pre><code>#!/usr/bin/env bash</code>
+
+<code>NAME=&quot;John&quot;</code>
+<code>echo &quot;Hello $NAME!&quot;</code></pre><h3 class="western">
+<a name="variables"></a>Variables</h3>
+<pre><code>NAME=&quot;John&quot;</code>
+<code>echo $NAME         ==&gt; John</code>
+<code>echo &quot;$NAME&quot;       ==&gt; John    avoid and prefer ${ } below:</code>
+<code>echo &quot;${NAME}&quot;     ==&gt; John</code>
+<code>echo &quot;${NAME}!&quot;    ==&gt; John!</code>
+
+<code>        </code></pre><h3 class="western" style="margin-top: 0cm; margin-bottom: 0cm; line-height: 100%">
+<a name="string-quotes"></a>String quotes</h3>
+<pre><code>NAME=&quot;John&quot;</code>
+<code>echo &quot;Hi $NAME&quot;  #=&gt; Hi John</code>
+<code>echo 'Hi $NAME'  #=&gt; Hi $NAME</code></pre><h3 class="western">
+<a name="shell-execution"></a>Shell execution</h3>
+<table width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: avoid">
+	<col width="128*"/>
+
+	<col width="128*"/>
+
+	<tr valign="top">
+		<td width="50%" style="border-top: 1px double #808080; border-bottom: 1px double #808080; border-left: 1px double #808080; border-right: none; padding-top: 0.1cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><pre><code>echo &quot;I'm in $(pwd)&quot;</code>
+<code>echo &quot;I'm in `pwd`&quot;        (obsolete)</code>
+<code># Same</code></pre><p>
+			See <a href="http://wiki.bash-hackers.org/syntax/expansion/cmdsubst">Command
+			substitution</a></p>
+		</td>
+		<td width="50%" style="border: 1px double #808080; padding: 0.1cm"><p style="margin-bottom: 0cm">
+			Exemples:</p>
+			<p style="margin-bottom: 0cm">To get the date</p>
+			<pre style="font-variant: normal; letter-spacing: normal; font-style: normal; font-weight: normal"><font color="#333333"><font face="Menlo, Monaco, Consolas, Courier New, monospace"><font size="2" style="font-size: 9pt">DATE=&quot;$(date)&quot;</font></font></font></pre>
+		</td>
+	</tr>
+</table>
+<p><br/>
+<br/>
+
+</p>
+<h3 class="western"><a name="conditional-execution"></a>Conditional
+execution</h3>
+<pre><code>git commit &amp;&amp; git push</code>
+<code>git commit || echo &quot;Commit failed&quot;</code></pre><h3 class="western">
+<a name="functions-example"></a>Functions</h3>
+<pre><code>get_name() {</code>
+<code>  echo &quot;John&quot;</code>
+<code>}</code>
+
+<code>echo &quot;You are $(get_name)&quot;</code></pre><p>
+See: <a href="https://devhints.io/bash#functions">Functions</a></p>
+<h3 class="western"><a name="conditionals-example"></a>Conditionals</h3>
+<pre><code>if [[ -z &quot;$string&quot; ]]; then</code>
+<code>  echo &quot;String is empty&quot;</code>
+<code>elif [[ -n &quot;$string&quot; ]]; then</code>
+<code>  echo &quot;String is not empty&quot;</code>
+<code>fi</code></pre><p>
+See: <a href="https://devhints.io/bash#conditionals">Conditionals</a></p>
+<h3 class="western"><a name="strict-mode"></a>Strict mode</h3>
+<table width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: avoid">
+	<col width="66*"/>
+
+	<col width="190*"/>
+
+	<tr valign="top">
+		<td width="26%" style="border-top: 1px double #808080; border-bottom: 1px double #808080; border-left: 1px double #808080; border-right: none; padding-top: 0.1cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><pre><code><i><b>set -euo pipefail</b></i></code>
+<code><i><b>IFS=$'\n\t'</b></i></code></pre><p>
+			<code><span style="font-variant: normal"><font color="#334455"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 10pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">See:&nbsp;</span></span></span></font></font></font></span></code><code><a href="http://redsymbol.net/articles/unofficial-bash-strict-mode/"><font color="#334455"><i><b><span style="background: transparent">Unofficial
+			bash strict mode</span></b></i></font></a></code><code> </code>
+			</p>
+		</td>
+		<td width="74%" style="border: 1px double #808080; padding: 0.1cm"><p style="margin-bottom: 0cm">
+			<font size="2" style="font-size: 9pt"><b>set -e</b> instructs bash
+			to immediately exit if any command has a non-zero exit status</font></p>
+			<p style="margin-bottom: 0cm"><font size="2" style="font-size: 9pt">C'&agrave;
+			peut arriver (status de retour diff&eacute;rent de 0) par exemple
+			en sortie d'un grep , dans ce cas, utiliser : </font>
+			</p>
+			<p style="margin-bottom: 0cm"><font size="2" style="font-size: 9pt"><i><b>set
+			+e</b></i></font></p>
+			<p style="margin-bottom: 0cm"><font size="2" style="font-size: 9pt"><i><b>commande
+			</b></i></font>
+			</p>
+			<p style="margin-bottom: 0cm"><font size="2" style="font-size: 9pt"><i><b>set
+			-e</b></i></font></p>
+			<p style="margin-bottom: 0cm"><font size="2" style="font-size: 9pt"><u>A
+			utiliser plut&ocirc;t pendant le test d'un script,</u> tant que le
+			test de bonne excution de chaque commande n'est pas ajout&eacute;
+			&agrave; la ligne suivante, du genre :</font></p>
+			<p style="margin-bottom: 0cm"><font size="2" style="font-size: 9pt"><i><b>if
+			(( $? != 0 )) ; then </b></i></font>
+			</p>
+			<p style="margin-bottom: 0cm"><font size="2" style="font-size: 9pt"><i><b>echo
+			&quot;error: blahblah&quot; </b></i></font>
+			</p>
+			<p style="margin-bottom: 0cm"><font size="2" style="font-size: 9pt"><i><b>fi
+			</b></i></font>
+			</p>
+			<p style="margin-bottom: 0cm"><br/>
+
+			</p>
+			<p style="margin-bottom: 0cm; font-variant: normal; font-style: normal; font-weight: normal">
+			<font size="2" style="font-size: 9pt"><i><b>set -u</b></i> affects
+			variables. When set, a reference to any variable you haven't
+			previously defined - with the exceptions of $* and $@ - is an
+			error, and causes the program to immediately exit.</font></p>
+			<p style="margin-bottom: 0cm"><br/>
+
+			</p>
+			<p style="margin-bottom: 0cm"><font size="2" style="font-size: 9pt"><i><b>set
+			-o pipefail</b></i></font></p>
+			<p style="margin-bottom: 0cm; font-variant: normal; font-style: normal; font-weight: normal">
+			<font size="2" style="font-size: 9pt">This setting prevents errors
+			in a pipeline from being masked, for instance:</font></p>
+			<p style="margin-bottom: 0cm; font-variant: normal; letter-spacing: normal">
+			<font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><i><b>%
+			grep some-string /non/existent/file | sort </b></i></font></font>
+			</p>
+			<p style="margin-bottom: 0cm; border: none; padding: 0cm; font-variant: normal; letter-spacing: normal; orphans: 2; widows: 2">
+			<font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><i><b>grep:
+			/non/existent/file: No such file or directory </b></i></font></font>
+			</p>
+			<p style="margin-bottom: 0cm; border: none; padding: 0cm; font-variant: normal; letter-spacing: normal; orphans: 2; widows: 2">
+			<font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><i><b>%
+			echo $? </b></i></font></font>
+			</p>
+			<p style="margin-bottom: 0cm; border: none; padding: 0cm; font-variant: normal; letter-spacing: normal; orphans: 2; widows: 2">
+			<font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><i><b>0</b></i></font></font></p>
+			<p style="margin-bottom: 0cm; font-variant: normal; font-style: normal; font-weight: normal">
+			<font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt">With
+			this option, echo $? returns 2, return code of the <u>whole</u>
+			pipeline.</font></font></p>
+			<p style="margin-bottom: 0cm"><br/>
+
+			</p>
+			<pre><code><span style="font-variant: normal"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><span style="font-style: normal"><span style="font-weight: normal">Setting IFS to </span></span></font></font></span></code><code><span style="font-variant: normal"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><i><b>$'\n\t'</b></i></font></font></span></code><code><span style="font-variant: normal"> </span></code><code><span style="font-variant: normal"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><span style="font-style: normal"><span style="font-weight: normal">means that </span></span></font></font></span></code><code><span style="font-variant: normal"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><span style="font-style: normal"><u><span style="font-weight: normal">word splitting</span></u></span></font></font></span></code><code><span style="font-variant: normal"> </span></code><code><span style="font-variant: normal"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><span style="font-style: normal"><span style="font-weight: normal">will happen </span></span></font></font></span></code><code><span style="font-variant: normal"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><span style="font-style: normal"><u><span style="font-weight: normal">only</span></u></span></font></font></span></code><code><span style="font-variant: normal"> </span></code><code><span style="font-variant: normal"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><span style="font-style: normal"><span style="font-weight: normal">on newlines and tab characters. This very often produces useful splitting behavior. By default, bash sets this to $' \n\t' - space, newline, tab - which is too eager.</span></span></font></font></span></code></pre>
+		</td>
+	</tr>
+</table>
+<h3 class="western"><a name="brace-expansion"></a><font color="#000000">Brace
+expansion </font>
+</h3>
+<pre style="margin-bottom: 0.5cm"><code>echo {A,B}.js</code></pre>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Expression</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>{A,B}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Same as <code>A B</code></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>{A,B}.js</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Same as <code>A.js B.js</code></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>{1..5}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Same as <code>1 2 3 4 5</code></p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p>See: <a href="http://wiki.bash-hackers.org/syntax/expansion/brace">Brace
+expansion</a></p>
+<h2 class="western"><a name="parameter-expansions"></a><a href="https://devhints.io/bash#parameter-expansions">#</a>Parameter
+expansions</h2>
+<h3 class="western"><a name="basics"></a>Basics</h3>
+<pre><code>name=&quot;John&quot;</code>
+<code>echo ${name}</code>
+<code>echo ${name/J/j}    #=&gt; &quot;john&quot; (substitution)</code>
+<code>echo ${name:0:2}    #=&gt; &quot;Jo&quot; (slicing)</code>
+<code>echo ${name::2}     #=&gt; &quot;Jo&quot; (slicing)</code>
+<code>echo ${name::-1}    #=&gt; &quot;Joh&quot; (slicing)</code>
+<code>echo ${name:(-1)}   #=&gt; &quot;n&quot; (slicing from right)</code>
+<code>echo ${name:(-2):1} #=&gt; &quot;h&quot; (slicing from right)</code>
+<code>echo ${food:-Cake}  #=&gt; $food or &quot;Cake&quot;</code>
+<code>length=2</code>
+<code>echo ${name:0:length}  #=&gt; &quot;Jo&quot;</code></pre><p>
+See: <a href="http://wiki.bash-hackers.org/syntax/pe">Parameter
+expansion</a></p>
+<pre><code>STR=&quot;/path/to/foo.cpp&quot;</code>
+<code>echo ${STR%.cpp}    # /path/to/foo</code>
+<code>echo ${STR%.cpp}.o  # /path/to/foo.o</code>
+<code>echo ${STR%/*}      # /path/to</code>
+
+<code>echo ${STR##*.}     # cpp (extension)</code>
+<code>echo ${STR##*/}     # foo.cpp (basepath)</code>
+
+<code>echo ${STR#*/}      # path/to/foo.cpp</code>
+<code>echo ${STR##*/}     # foo.cpp</code>
+
+<code>echo ${STR/foo/bar} # /path/to/bar.cpp</code>
+<code>STR=&quot;Hello world&quot;</code>
+<code>echo ${STR:6:5}   # &quot;world&quot;</code>
+<code>echo ${STR: -5:5}  # &quot;world&quot;</code>
+<code>SRC=&quot;/path/to/foo.cpp&quot;</code>
+<code>BASE=${SRC##*/}   #=&gt; &quot;foo.cpp&quot; (basepath)</code>
+<code>DIR=${SRC%$BASE}  #=&gt; &quot;/path/to/&quot; (dirpath)</code></pre><h3 class="western">
+<a name="substitution"></a>Substitution</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Code</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO%suffix}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Remove suffix</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO#prefix}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Remove prefix</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO%%suffix}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Remove long suffix</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO##prefix}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Remove long prefix</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO/from/to}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Replace first match</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO//from/to}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Replace all</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO/%from/to}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Replace suffix</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO/#from/to}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Replace prefix</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h3 class="western"><a name="comments"></a>Comments</h3>
+<pre style="margin-bottom: 0.5cm"><code># Single line comment</code>
+<code>: '</code>
+<code>This is a</code>
+<code>multi line</code>
+<code>comment</code>
+<code>'</code></pre><h3 class="western">
+<a name="substrings"></a>Substrings</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Expression</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO:0:3}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Substring <em>(position,
+				length)</em></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO:(-3):3}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Substring from the right</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h3 class="western"><a name="length"></a>Length</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Expression</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${#FOO}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Length of <code>$FOO</code></p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h3 class="western"><a name="manipulation"></a>Manipulation</h3>
+<pre><code>STR=&quot;HELLO WORLD!&quot;</code>
+<code>echo ${STR,}   #=&gt; &quot;hELLO WORLD!&quot; (lowercase 1st letter)</code>
+<code>echo ${STR,,}  #=&gt; &quot;hello world!&quot; (all lowercase)</code>
+
+<code>STR=&quot;hello world!&quot;</code>
+<code>echo ${STR^}   #=&gt; &quot;Hello world!&quot; (uppercase 1st letter)</code>
+<code>echo ${STR^^}  #=&gt; &quot;HELLO WORLD!&quot; (all uppercase)</code></pre><h3 class="western">
+<a name="default-values"></a>Default values</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Expression</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO:-val}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p><code>$FOO</code>, or
+				<code>val</code> if unset (or null)</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO:=val}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Set <code>$FOO</code> to
+				<code>val</code> if unset (or null)</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO:+val}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p><code>val</code> if <code>$FOO</code>
+				is set (and not null)</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>${FOO:?message}</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Show error message and
+				exit if <code>$FOO</code> is unset (or null)</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p>Omitting the <code>:</code> removes the (non)nullity checks, e.g.
+<code>${FOO-val}</code> expands to <code>val</code> if unset
+otherwise <code>$FOO</code>.</p>
+<h2 class="western"><a name="loops"></a><a href="https://devhints.io/bash#loops">#</a>Loops</h2>
+<h3 class="western"><a name="basic-for-loop"></a>Basic for loop</h3>
+<pre><code>for i in /etc/rc.*; do</code>
+<code>  echo $i</code>
+<code>done</code></pre><h3 class="western">
+<a name="c-like-for-loop"></a>C-like for loop</h3>
+<pre><code>for ((i = 0 ; i &lt; 100 ; i++)); do</code>
+<code>  echo $i</code>
+<code>done</code></pre><h3 class="western">
+<a name="ranges"></a>Ranges</h3>
+<pre><code>for i in {1..5}; do</code>
+<code>    echo &quot;Welcome $i&quot;</code>
+<code>done</code></pre><h4 class="western">
+<a name="with-step-size"></a>With step size</h4>
+<pre><code>for i in {5..50..5}; do</code>
+<code>    echo &quot;Welcome $i&quot;</code>
+<code>done</code></pre><h3 class="western">
+<a name="reading-lines"></a>Reading lines</h3>
+<pre><code>cat file.txt | while read line; do</code>
+<code>  echo $line</code>
+<code>done</code></pre><h3 class="western">
+<a name="forever"></a>Forever</h3>
+<pre><code>while true; do</code>
+<code>  &middot;&middot;&middot;</code>
+<code>done</code></pre><h2 class="western">
+<a name="functions"></a><a href="https://devhints.io/bash#functions">#</a>Functions</h2>
+<h3 class="western"><a name="defining-functions"></a>Defining
+functions</h3>
+<pre><code>myfunc() {</code>
+<code>    echo &quot;hello $1&quot;</code>
+<code>}</code>
+<code># Same as above (alternate syntax)</code>
+<code>function myfunc() {</code>
+<code>    echo &quot;hello $1&quot;</code>
+<code>}</code>
+<code>myfunc &quot;John&quot;</code></pre><h3 class="western">
+<a name="returning-values"></a>Returning values</h3>
+<pre><code>myfunc() {</code>
+<code>    local myresult='some value'</code>
+<code>    echo $myresult</code>
+<code>}</code>
+<code>result=&quot;$(myfunc)&quot;</code></pre><h3 class="western">
+<a name="raising-errors"></a>Raising errors</h3>
+<pre><code>myfunc() {</code>
+<code>  return 1</code>
+<code>}</code>
+<code>if myfunc; then</code>
+<code>  echo &quot;success&quot;</code>
+<code>else</code>
+<code>  echo &quot;failure&quot;</code>
+<code>fi</code></pre><h3 class="western">
+<a name="arguments"></a>Arguments</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Expression</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>$#</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Number of arguments</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>$*</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>All arguments</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>$@</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>All arguments, starting
+				from first</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>$1</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>First argument</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>$_</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Last argument of the
+				previous command</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p>See <a href="http://wiki.bash-hackers.org/syntax/shellvars#special_parameters_and_shell_variables">Special
+parameters</a>.</p>
+<h2 class="western"><a name="conditionals"></a><a href="https://devhints.io/bash#conditionals">#</a>Conditionals</h2>
+<h3 class="western"><a name="conditions"></a>Conditions</h3>
+<p>Note that <code>[[</code> is actually a command/program that
+returns either <code>0</code> (true) or <code>1</code> (false). Any
+program that obeys the same logic (like all base utils, such as
+<code>grep(1)</code> or <code>ping(1)</code>) can be used as
+condition, see examples.</p>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Condition</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -z STRING ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Empty string</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -n STRING ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Not empty string</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ STRING ==
+				STRING ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Equal</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ STRING !=
+				STRING ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Not Equal</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ NUM -eq NUM ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Equal</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ NUM -ne NUM ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Not equal</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ NUM -lt NUM ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Less than</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ NUM -le NUM ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Less than or equal</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ NUM -gt NUM ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Greater than</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ NUM -ge NUM ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Greater than or equal</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ STRING =~
+				STRING ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Regexp</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>(( NUM &lt; NUM ))</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Numeric conditions</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h4 class="western"><a name="more-conditions"></a>More conditions</h4>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Condition</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -o noclobber ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>If OPTIONNAME is enabled</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ ! EXPR ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Not</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ X &amp;&amp; Y
+				]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>And</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ X || Y ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Or</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h3 class="western"><a name="file-conditions"></a>File conditions</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Condition</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -e FILE ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Exists</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -r FILE ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Readable</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -h FILE ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Symlink</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -d FILE ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Directory</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -w FILE ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Writable</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -s FILE ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Size is &gt; 0 bytes</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -f FILE ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>File</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ -x FILE ]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Executable</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ FILE1 -nt FILE2
+				]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>1 is more recent than 2</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ FILE1 -ot FILE2
+				]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>2 is more recent than 1</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>[[ FILE1 -ef FILE2
+				]]</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Same files</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h3 class="western"><a name="example-1"></a>Example</h3>
+<pre><code># String</code>
+<code>if [[ -z &quot;$string&quot; ]]; then</code>
+<code>  echo &quot;String is empty&quot;</code>
+<code>elif [[ -n &quot;$string&quot; ]]; then</code>
+<code>  echo &quot;String is not empty&quot;</code>
+<code>else</code>
+<code>  echo &quot;This never happens&quot;</code>
+<code>fi</code>
+<code># Combinations</code>
+<code>if [[ X &amp;&amp; Y ]]; then</code>
+<code>  ...</code>
+<code>fi</code>
+<code># Equal</code>
+<code>if [[ &quot;$A&quot; == &quot;$B&quot; ]]</code>
+<code># Regex</code>
+<code>if [[ &quot;A&quot; =~ . ]]</code>
+<code>if (( $a &lt; $b )); then</code>
+<code>   echo &quot;$a is smaller than $b&quot;</code>
+<code>fi</code>
+<code>if [[ -e &quot;file.txt&quot; ]]; then</code>
+<code>  echo &quot;file exists&quot;</code>
+<code>fi</code></pre><h2 class="western">
+<a name="arrays"></a><a href="https://devhints.io/bash#arrays">#</a>Arrays</h2>
+<p style="orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#24292e"><font face="apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol"><font size="3" style="font-size: 12pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Bash
+arrays should be used to store lists of elements, to avoid quoting
+complications. This particularly applies to argument lists.</span></span></span></font></font></font></span>
+</p>
+<h3 class="western"><a name="defining-arrays"></a>Defining (indexed)
+arrays</h3>
+<p><code><font color="#334455"><font size="2" style="font-size: 10pt">declare
+-a Fruits # explicitly declare Fruits as a indexed array</font></font></code></p>
+<pre style="margin-bottom: 0.5cm"><code>Fruits=('Apple' 'Banana' 'Orange')</code>
+<code>Fruits[0]=&quot;Apple&quot;</code>
+<code>Fruits[1]=&quot;Banana&quot;</code>
+<code>Fruits[2]=&quot;Orange&quot;</code></pre><h3 class="western">
+<a name="working-with-arrays"></a>Working with arrays</h3>
+<pre><code>echo ${Fruits[0]}           # Element #0</code>
+<code>echo ${Fruits[-1]}          # Last element</code>
+<code>echo ${Fruits[@]}           # All elements, space-separated</code>
+<code>echo ${#Fruits[@]}          # Number of elements</code>
+<code>echo ${#Fruits}             # String length of the 1st element</code>
+<code>echo ${#Fruits[3]}          # String length of the Nth element</code>
+<code>echo ${Fruits[@]:3:2}       # Range (from position 3, length 2)</code>
+<code>echo ${!Fruits[@]}          # Keys of all elements, space-separated</code></pre><h3 class="western">
+<a name="operations"></a>Operations</h3>
+<pre><code>Fruits=(&quot;${Fruits[@]}&quot; &quot;Watermelon&quot;)    # Push</code>
+<code>Fruits+=('Watermelon')                  # Also Push</code>
+<code>Fruits=( ${Fruits[@]/Ap*/} )            # Remove by regex match</code>
+<code>unset Fruits[2]                         # Remove one item</code>
+<code>Fruits=(&quot;${Fruits[@]}&quot;)                 # Duplicate</code>
+<code>Fruits=(&quot;${Fruits[@]}&quot; &quot;${Veggies[@]}&quot;) # Concatenate</code>
+<code>lines=(`cat &quot;logfile&quot;`)                 # Read from file</code></pre><h3 class="western">
+<a name="iteration"></a>Iteration</h3>
+<pre><code>for i in &quot;${arrayName[@]}&quot;; do</code>
+<code>  echo $i</code>
+<code>done</code></pre><h2 class="western">
+<a name="dictionaries"></a><a href="https://devhints.io/bash#dictionaries">#</a>Dictionaries</h2>
+<h3 class="western"><a name="defining"></a>Defining</h3>
+<pre style="margin-bottom: 0.5cm"><code>declare -A sounds    </code><code><font color="#334455"><font size="2" style="font-size: 10pt"># explicitly declare </font></font></code><code><font color="#334455"><font face="cousine, sfmono-regular, Consolas, Menlo, liberation mono, ubuntu mono, Courier, monospace"><font size="2" style="font-size: 10pt">sounds</font></font></font></code><code><font color="#334455"> </font></code><code><font color="#334455"><font size="2" style="font-size: 10pt">as a associative array = a dictionary</font></font></code>
+<code>sounds[dog]=&quot;bark&quot;</code>
+<code>sounds[cow]=&quot;moo&quot;</code>
+<code>sounds[bird]=&quot;tweet&quot;</code>
+<code>sounds[wolf]=&quot;howl&quot;</code></pre><h3 class="western">
+<a name="working-with-dictionaries"></a>Working with dictionaries</h3>
+<pre><code>echo ${sounds[dog]} # Dog's sound</code>
+<code>echo ${sounds[@]}   # All values</code>
+<code>echo ${!sounds[@]}  # All keys</code>
+<code>echo ${#sounds[@]}  # Number of elements</code>
+<code>unset sounds[dog]   # Delete dog</code></pre><h3 class="western">
+<a name="iteration-1"></a>Iteration</h3>
+<h4 class="western"><a name="iterate-over-values"></a>Iterate over
+values</h4>
+<pre><code>for val in &quot;${sounds[@]}&quot;; do</code>
+<code>  echo $val</code>
+<code>done</code></pre><h4 class="western">
+<a name="iterate-over-keys"></a>Iterate over keys</h4>
+<pre><code>for key in &quot;${!sounds[@]}&quot;; do</code>
+<code>  echo $key</code>
+<code>done</code></pre><h2 class="western">
+<a name="options"></a><a href="https://devhints.io/bash#options">#</a>Options</h2>
+<h3 class="western"><a name="options-1"></a>Options</h3>
+<pre><code>set -o noclobber  # Avoid overlay files (echo &quot;hi&quot; &gt; foo)</code>
+<code>set -o errexit    # Used to exit upon error, avoiding cascading errors</code>
+<code>set -o pipefail   # Unveils hidden failures</code>
+<code>set -o nounset    # Exposes unset variables</code></pre><h3 class="western">
+<a name="glob-options"></a>Glob options</h3>
+<pre><code>shopt -s nullglob    # Non-matching globs are removed  ('*.foo' =&gt; '')</code>
+<code>shopt -s failglob    # Non-matching globs throw errors</code>
+<code>shopt -s nocaseglob  # Case insensitive globs</code>
+<code>shopt -s dotglob     # Wildcards match dotfiles (&quot;*.sh&quot; =&gt; &quot;.foo.sh&quot;)</code>
+<code>shopt -s globstar    # Allow ** for recursive matches ('lib/**/*.rb' =&gt; 'lib/a/b/c.rb')</code></pre><p>
+Set <code>GLOBIGNORE</code> as a colon-separated list of patterns to
+be removed from glob matches.</p>
+<h2 class="western"><a name="history"></a><a href="https://devhints.io/bash#history">#</a>History</h2>
+<h3 class="western"><a name="commands"></a>Commands</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Command</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>history</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Show history</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>shopt -s
+				histverify</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Don&rsquo;t execute
+				expanded result immediately</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h3 class="western"><a name="expansions"></a>Expansions</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Expression</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!$</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand last parameter of
+				most recent command</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!*</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand all parameters of
+				most recent command</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!-n</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand <code>n</code>th
+				most recent command</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!n</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand <code>n</code>th
+				command in history</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!&lt;command&gt;</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand most recent
+				invocation of command <code>&lt;command&gt;</code></p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h3 class="western"><a name="operations-1"></a>Operations</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Code</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!!</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Execute last command
+				again</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!!:s/&lt;FROM&gt;/&lt;TO&gt;/</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Replace first occurrence
+				of <code>&lt;FROM&gt;</code> to <code>&lt;TO&gt;</code> in most
+				recent command</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!!:gs/&lt;FROM&gt;/&lt;TO&gt;/</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Replace all occurrences
+				of <code>&lt;FROM&gt;</code> to <code>&lt;TO&gt;</code> in most
+				recent command</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!$:t</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand only basename
+				from last parameter of most recent command</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!$:h</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand only directory
+				from last parameter of most recent command</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p><code>!!</code> and <code>!$</code> can be replaced with any valid
+expansion.</p>
+<h3 class="western"><a name="slices"></a>Slices</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Code</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!!:n</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand only <code>n</code>th
+				token from most recent command (command is <code>0</code>; first
+				argument is <code>1</code>)</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!^</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand first argument
+				from most recent command</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!$</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand last token from
+				most recent command</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!!:n-m</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand range of tokens
+				from most recent command</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>!!:n-$</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Expand <code>n</code>th
+				token to last from most recent command</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p><code>!!</code> can be replaced with any valid expansion i.e.
+<code>!cat</code>, <code>!-2</code>, <code>!42</code>, etc.</p>
+<h2 class="western"><a name="miscellaneous"></a><a href="https://devhints.io/bash#miscellaneous">#</a>Miscellaneous</h2>
+<h3 class="western"><a name="numeric-calculations"></a>Numeric
+calculations</h3>
+<pre style="margin-bottom: 0.5cm"><code>$((a + 200))      # Add 200 to $a</code>
+<code>$((RANDOM%=200))  # Random number 0..200</code></pre><h3 class="western">
+<a name="subshells"></a>Subshells</h3>
+<pre><code>(cd somedir; echo &quot;I'm now in $PWD&quot;)</code>
+<code>pwd # still in first directory</code></pre><h3 class="western">
+<a name="redirection"></a>Redirection</h3>
+<pre><code>python hello.py &gt; output.txt   # stdout to (file)</code>
+<code>python hello.py &gt;&gt; output.txt  # stdout to (file), append</code>
+<code>python hello.py 2&gt; error.log   # stderr to (file)</code>
+<code>python hello.py 2&gt;&amp;1           # stderr to stdout</code>
+<code>python hello.py 2&gt;/dev/null    # stderr to (null)   (use this to avoid error messages in a command like find)</code>
+<code>python hello.py &amp;&gt;/dev/null    # stdout and stderr to (null)</code>
+<code>python hello.py &lt; foo.txt      # feed foo.txt to stdin for python</code></pre><h3 class="western">
+<a name="inspecting-commands"></a>Inspecting commands</h3>
+<pre><code>command -V cd</code>
+<code>#=&gt; &quot;cd is a function/alias/whatever&quot;</code></pre><h3 class="western">
+<a name="trap-errors"></a>Trap errors</h3>
+<pre style="margin-bottom: 0.5cm"><code>trap 'echo Error at about $LINENO' ERR</code></pre><p>
+or</p>
+<pre><code>traperr() {</code>
+<code>  echo &quot;ERROR: ${BASH_SOURCE[1]} at about ${BASH_LINENO[0]}&quot;</code>
+<code>}</code>
+
+<code>set -o errtrace</code>
+<code>trap traperr ERR</code></pre><h3 class="western">
+<a name="caseswitch"></a>Case/switch</h3>
+<pre><code>case &quot;$1&quot; in</code>
+<code>  start | up)</code>
+<code>    vagrant up</code>
+<code>    ;;</code>
+
+<code>  *)</code>
+<code>    echo &quot;Usage: $0 {start|stop|ssh}&quot;</code>
+<code>    ;;</code>
+<code>esac</code></pre><h3 class="western">
+<a name="source-relative"></a>Source relative</h3>
+<pre style="margin-bottom: 0.5cm"><code>source &quot;${0%/*}/../share/foo.sh&quot;</code></pre><h3 class="western">
+<a name="printf"></a>printf</h3>
+<pre><code>printf &quot;Hello %s, I'm %s&quot; Sven Olga</code>
+<code>#=&gt; &quot;Hello Sven, I'm Olga</code>
+
+<code>printf &quot;1 + 1 = %d&quot; 2</code>
+<code>#=&gt; &quot;1 + 1 = 2&quot;</code>
+
+<code>printf &quot;This is how you print a float: %f&quot; 2</code>
+<code>#=&gt; &quot;This is how you print a float: 2.000000&quot;</code></pre><h3 class="western">
+<a name="directory-of-script"></a>Directory of script</h3>
+<pre style="margin-bottom: 0.5cm"><code>DIR=&quot;${0%/*}&quot;</code></pre><h3 class="western">
+<a name="getting-options"></a>Getting options</h3>
+<pre><code>while [[ &quot;$1&quot; =~ ^- &amp;&amp; ! &quot;$1&quot; == &quot;--&quot; ]]; do case $1 in</code>
+<code>  -V | --version )</code>
+<code>    echo $version</code>
+<code>    exit</code>
+<code>    ;;</code>
+<code>  -s | --string )</code>
+<code>    shift; string=$1</code>
+<code>    ;;</code>
+<code>  -f | --flag )</code>
+<code>    flag=1</code>
+<code>    ;;</code>
+<code>esac; shift; done</code>
+<code>if [[ &quot;$1&quot; == '--' ]]; then shift; fi</code></pre><h3 class="western">
+<a name="heredoc"></a>Heredoc</h3>
+<pre><code>cat &lt;&lt;END</code>
+<code>hello world</code>
+<code>END</code></pre><h3 class="western">
+<a name="reading-input"></a>Reading input</h3>
+<pre><code>echo -n &quot;Proceed? [y/n]: &quot;</code>
+<code>read ans</code>
+<code>echo $ans</code>
+<code>read -n 1 ans    # Just one character</code></pre><h3 class="western">
+<a name="special-variables"></a>Special variables</h3>
+<table cellpadding="2" cellspacing="2">
+	<thead>
+		<tr>
+			<th style="border: none; padding: 0cm"><p>Expression</p>
+			</th>
+			<th style="border: none; padding: 0cm"><p>Description</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>$?</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Exit status of last task</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>$!</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>PID of last background
+				task</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>$$</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>PID of shell</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border: none; padding: 0cm"><p><code>$0</code></p>
+			</td>
+			<td style="border: none; padding: 0cm"><p>Filename of the shell
+				script</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p>See <a href="http://wiki.bash-hackers.org/syntax/shellvars#special_parameters_and_shell_variables">Special
+parameters</a>.</p>
+<h3 class="western"><a name="go-to-previous-directory"></a>Go to
+previous directory</h3>
+<pre><code>pwd # /home/user/foo</code>
+<code>cd bar/</code>
+<code>pwd # /home/user/foo/bar</code>
+<code>cd -</code>
+<code>pwd # /home/user/foo</code></pre><h3 class="western">
+<a name="check-for-commands-result"></a>Check for command&rsquo;s
+result</h3>
+<pre><code>if ping -c 1 google.com; then</code>
+<code>  echo &quot;It appears you have a working internet connection&quot;</code>
+<code>fi</code></pre><h3 class="western">
+<a name="grep-check"></a>Grep check</h3>
+<pre><code>if grep -q 'foo' ~/.bash_history; then</code>
+<code>  echo &quot;You appear to have typed 'foo' in the past&quot;</code>
+<code>fi</code></pre><h3 class="western" style="margin-top: 0cm; margin-bottom: 0.5cm">
+<code><font color="#334455"><font face="Liberation Serif, serif"><font size="4" style="font-size: 14pt"><b>Shell
+Variables</b></font></font></font></code></h3>
+<h4 class="western"><code>Bourne shell variables</code></h4>
+<h4 class="western"><code>Bash variables</code></h4>
+<p><code>...</code></p>
+<p><code><font color="#334455"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><b>PPID</b></font></font></font></code><code><font color="#334455">
+</font></code><code><font color="#334455"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><span style="font-weight: normal">The
+process ID of the shell&rsquo;s parent process</span></font></font></font></code></p>
+<p><code><font color="#334455"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><span style="font-weight: normal">...</span></font></font></font></code></p>
+<h2 class="western"><a name="also-see"></a><a href="https://devhints.io/bash#also-see">#</a>Also
+see</h2>
+<ul>
+	<li><p style="margin-bottom: 0cm"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt">Google
+	style guide : <a href="https://google.github.io/styleguide/shellguide.html">https://google.github.io/styleguide/shellguide.html</a>
+	</font></font>
+	</p>
+	<li><p style="margin-bottom: 0cm"><font color="#334455"><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt">bash
+	cheat chat </font></font></font><font face="apple-system, BlinkMacSystemFont, segoe ui, roboto, oxygen, ubuntu, cantarell, fira sans, droid sans, helvetica neue, sans-serif"><font size="2" style="font-size: 9pt"><a href="https://devhints.io/bash">https://devhints.io/bash</a>
+	</font></font>
+	</p>
+	<li><p style="margin-bottom: 0cm"><a href="http://wiki.bash-hackers.org/">Bash-hackers
+	wiki</a> <em>(bash-hackers.org)</em> 
+	</p>
+	<li><p style="margin-bottom: 0cm"><a href="http://wiki.bash-hackers.org/syntax/shellvars">Shell
+	vars</a> <em>(bash-hackers.org)</em> 
+	</p>
+	<li><p style="margin-bottom: 0cm"><a href="https://learnxinyminutes.com/docs/bash/">Learn
+	bash in y minutes</a> <em>(learnxinyminutes.com)</em> 
+	</p>
+	<li><p style="margin-bottom: 0cm"><a href="http://mywiki.wooledge.org/BashGuide">Bash
+	Guide</a> <em>(mywiki.wooledge.org)</em> 
+	</p>
+	<li><p><a href="https://www.shellcheck.net/">ShellCheck</a>
+	<em>(shellcheck.net)</em> 
+	</p>
+	<li><p>for correct check of parameters (among others) 
+	<a href="https://ineumann.developpez.com/tutoriels/linux/bash-bonnes-pratiques/">https://ineumann.developpez.com/tutoriels/linux/bash-bonnes-pratiques/</a>
+		</p>
+	<li><p>man bash :
+	<a href="https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html">https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html</a>
+		</p>
+</ul>
+<p style="margin-bottom: 0cm"><br/>
+
+</p>
+</body>
+</html>
