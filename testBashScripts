@@ -3,6 +3,7 @@
 # launch with: bash testBashScripts
 #
 # see all bash details here http://mywiki.wooledge.org/FullBashGuide
+# see bash manual here: https://www.gnu.org/software/bash/manual/bash.html
 #
 set -euo pipefail   # -e exit immediately if error, -u give error if you reference a variable not previously defined
                     # -o pipefail exit if any error in a pipe
@@ -12,16 +13,6 @@ IFS=$'\n\t'         # word splitting will happen only on newlines and tab charac
 # -x : displays command traces prior to executing them
 # -n : does not displays commands just check for syntax errors
 # -v : displays the commands while they are read  
-
-# Set magic variables for current file & dir
-__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-__file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
-__base="$(basename ${__file} .sh)"
-__root="$(cd "$(dirname "${__dir}")" && pwd)" # <-- change this as it depends on your app
-echo "path of this script: ${__dir}"
-echo "complete path and name of this script: ${__file}"
-echo "this script: ${__base}"
-echo "one level upper directory: ${__root}"
 
 # define 1st params (else you get an "unbound variable error" with option -u)
 par1="${1:-}"     # init to "" if unset
@@ -34,6 +25,21 @@ echo "1st param is: ${par1}"
 
 par2="${2:-}"     # init to "" if unset
 par3="${3:-}"     # init to "" if unset
+
+
+bash_variables() {
+# Set bash variables for current file & dir
+  __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
+  __base="$(basename ${__file} .sh)"
+  __root="$(cd "$(dirname "${__dir}")" && pwd)" # <-- change this as it depends on your app
+  echo "path of this script: ${__dir}"
+  echo "complete path and name of this script: ${__file}"
+  echo "this script: ${__base}"
+  echo "one level upper directory: ${__root}"
+}
+
+
 
 error() { 
     echo "ERROR : invalid parameters!" >&2 
@@ -223,11 +229,12 @@ err() {
 
 
 error_treatment1() {
-# using $?  (exit status of the most recently executed foreground pipeline)
+# complete example using $?: run command wc and check its exit status
+
   myFile="toto.txt"
   set +e              # to avoid exit on error
   rm ${myFile}        # to be sure file doesn't exist
-  wc -l ${myFile}
+  wc -l ${myFile}     # try to count lines in specified file. Exit status will be 1, file doesn't exist
   if (( $? != 0 )) ; then 
     err "file  ${myFile} doesn't exists" 
     exit 1            # error ==> exit from script
@@ -236,7 +243,7 @@ error_treatment1() {
 }
 
 error_treatment2() {
-# using if ! command ; then
+# same complete example but using if ! command ; then
   myFile="toto.txt"
   set +e              # to avoid exit on error
   rm ${myFile}        # to be sure file doesn't exist
@@ -282,18 +289,22 @@ get_name() {
 
 myFunc() {
   local myresult='some value'  # myresult is local to myFunc (and to commands it invokes)
-  echo $myresult               # 
+  echo ${myresult}
 }
 
 command_substitution() {
+# like $(command) or `command`  (avoid the second one, old-style)
+# see https://www.gnu.org/software/bash/manual/bash.html#Command-Substitution
+# see http://mywiki.wooledge.org/CommandSubstitution
+
   echo "You are $(get_name)"
   # how to return value from a function, by command substitution
   result="$(myFunc)"  
-  echo "Result of myFunc is : ${result}"
+  echo "Result of myFunc is : ${result}"   # will display "some value"
 
   echo "$(date)"
-  echo -e "$(ls) \n ------"
-  echo "$(cd .. ; ls)"
+  echo -e "List of files in current directory is: \n$(ls) \n"
+  echo -e "List of files in parent directory is: \n$(cd .. ; ls)"
 }
 
 
@@ -543,43 +554,54 @@ user_menu_simple() {
 }
 
 user_menu_loop() {
-# loop until correct value given
+# loop until correct value given  (or [Ctrl-Z])
   #echo -e "choice to do: \n Copy file ${par1} (Yy/Nn)?"
-  read -p "choice to do: \n Copy file ${par1} (Yy/Nn)?" my_menu_var
-  case ${my_menu_var} in
-    1 ) echo "file ${par1} will be copied" ;;
-    2 ) echo "all files will be copied" ;;
-    3 ) echo "Exit now" ;; 
-  esac
+  while true; do
+    read -p "Choice to do: \n Copy file ${par1} (Yy/Nn)?" my_menu_var
+    case ${my_menu_var} in
+      [Yy] ) echo "File ${par1} will be copied"
+	         # here treatment for that case
+	         return 0;;          # user_menu_loop() function stops with exit status 0
+      [Nn] ) echo "File ${par1} will NOT be copied"
+	         # here treatment for that case
+	         return 0;;
+      * ) echo "Please answer with Yy/Nn"
+    esac
+  done
 }
 
 main() {
-#  check_options "$@"        # check options given when script launched. To test, use: bash testBashScripts -t bash /etc
+#  bash_variables
 #  find_bash_files bash /etc   # script to find bash files recursively in a directory 
-#  quoting -h -s /etc       # to be continued
-#  variables                #(to be continued)
-#  error_treatment1         # using $?
+#  check_options "$@"        # check options given when script launched. To test, use: bash testBashScripts -t bash /etc
+#  quoting -h -s /etc        # TODO to be continued
+#  variables                 # TODO to be continued
+#  error_treatment1          # using $?
 #  error_treatment2          # using if ! command ; then
 #  error_treatment_with_mv_command
 #  check_file
-#  command_substitution
+#  command_substitution      # like $(cat toto.txt)
 #  parameter_expansion_indirection
 #  parameter_expansion_substring
 #  parameter_expansion_substring_positional_parameter  abcdefghij  
 #  parameter_expansion_substring_positional_array
 #  parameter_expansion_substring_prefix
 #  parameter_expansion_substring_array
-#  parameter_expansion_substitution    #  TO BE CONTINUED
-#   use_conditions "$@"
-  arithmetic
+#  parameter_expansion_substitution    #  TODO to be continued
+#  use_conditions "$@"
+#  arithmetic
 # TODO parameter_expansion
-
 # TODO working with indexed array
+# TODO access to remote server using ssh and command execution without password 
 # TODO working with sed and awk (use Linux Mag HS102)
-  user_menu_simple
+#  user_menu_simple
+  user_menu_loop
 # TODO use_of_shellcheck           # linuxMag HS 10 p.78
 # TODO use_of_test_u_with_bats     # linuxMag HS 10 p.81
 
+if (( $? != 0 )) ; then 
+    echo "exit status from function is: ${?}"
+fi
 }
 
 main "$@"
