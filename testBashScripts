@@ -303,6 +303,7 @@ command_substitution() {
   echo "Result of myFunc is : ${result}"   # will display "some value"
 
   echo "$(date)"
+  echo "Today is $(date +%A), it's $(date +%H:%M)"        # see format options in man date 
   echo -e "List of files in current directory is: \n$(ls) \n"
   echo -e "List of files in parent directory is: \n$(cd .. ; ls)"
 }
@@ -580,7 +581,7 @@ main() {
 #  error_treatment2          # using if ! command ; then
 #  error_treatment_with_mv_command
 #  check_file
-#  command_substitution      # like $(cat toto.txt)
+  command_substitution      # like $(cat toto.txt)
 #  parameter_expansion_indirection
 #  parameter_expansion_substring
 #  parameter_expansion_substring_positional_parameter  abcdefghij  
@@ -595,7 +596,7 @@ main() {
 # TODO access to remote server using ssh and command execution without password 
 # TODO working with sed and awk (use Linux Mag HS102)
 #  user_menu_simple
-  user_menu_loop
+#  user_menu_loop
 # TODO use_of_shellcheck           # linuxMag HS 10 p.78
 # TODO use_of_test_u_with_bats     # linuxMag HS 10 p.81
 
