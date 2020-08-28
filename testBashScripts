@@ -1,6 +1,11 @@
 #!/bin/bash
+<<<<<<< HEAD
 # lot of examples
 # launch with: bash testBashScripts
+=======
+#
+# see all bash details here http://mywiki.wooledge.org/FullBashGuide
+>>>>>>> 6283795f231d5852ae25f29504be72717d85e3c9
 #
 set -euo pipefail   # -e exit immediately if error, -u give error if you reference a variable not previously defined
                     # -o pipefail exit if any error in a pipe
@@ -21,12 +26,17 @@ echo "complete path and name of this script: ${__file}"
 echo "this script: ${__base}"
 echo "one level upper directory: ${__root}"
 
-arg1="${1:-}"     # init to "" if unset
+# define 1st params (else you get an "unbound variable error" with option -u)
+par1="${1:-}"     # init to "" if unset
 echo "1st param is: ${arg1}"
-arg1="${1:-toto}"  # init to "toto" if unset
-echo "1st param is: ${arg1}"
-arg1="${1:+titi}"  # init to "titi" if already set
-echo "1st param is: ${arg1}"
+# other ways to define, uncomment if used
+#par1="${1:-toto}"  # init to "toto" if unset
+#echo "1st param is: ${arg1}"
+#par1="${1:+titi}"  # init to "titi" if already set
+#echo "1st param is: ${arg1}"
+
+par2="${2:-}"     # init to "" if unset
+par3="${3:-}"     # init to "" if unset
 
 error() { 
     echo "ERROR : invalid parameters!" >&2 
@@ -435,7 +445,7 @@ parameter_expansion() {
   echo ${name::-1}    #=> "Joh" (slicing)
   echo ${name:(-1)}   #=> "n" (slicing from right)
   echo ${name:(-2):1} #=> "h" (slicing from right)
-  echo ${food:-Cake}  #=> $food or "Cake"
+  echo ${food:-Cake}  #=> $food or "Cake"    !!!!!! TODO : explain this
 
   length=2
   echo ${name:0:length}  #=> "Jo"
@@ -521,15 +531,29 @@ var=0
  echo "value of var is unchanged: ${var}"  # will display 2
 }
 
-user_menu() {
-# caution, there is no echo of what is written
-echo -e "choice to do \n 1 yes \n 2 no \n 3 perhaps ?"
-read my_menu_var
-case ${my_menu_var} in
-  1) echo "yes, why not" ;;
-  2) echo "no, why ?" ;;
-  3) echo "not an answer" ;; 
-esac
+user_menu_simple() {
+# doesn't loop if wrong value given, directly exit in that case
+# use with one parameter like: bash testBashScripts toto
+  echo -e "choice to do: \n 1 Copy file ${par1}? \n 2 Copy all files? \
+           \n 3 Realy copy all files? \n 4 Exit ?"
+  read my_menu_var
+  case ${my_menu_var} in
+    1 ) echo "file ${par1} will be copied" ;;
+    2 | 3 ) echo "all files will be copied" ;;
+    4 ) echo "Exit now" ;;
+    * ) echo "wrong value => Exit" ;;
+  esac
+}
+
+user_menu_loop() {
+# loop until correct value given
+  #echo -e "choice to do: \n Copy file ${par1} (Yy/Nn)?"
+  read -p "choice to do: \n Copy file ${par1} (Yy/Nn)?" my_menu_var
+  case ${my_menu_var} in
+    1 ) echo "file ${par1} will be copied" ;;
+    2 ) echo "all files will be copied" ;;
+    3 ) echo "Exit now" ;; 
+  esac
 }
 
 main() {
@@ -555,7 +579,7 @@ main() {
 
 # TODO working with indexed array
 # TODO working with sed and awk (use Linux Mag HS102)
-#  user_menu
+  user_menu_simple
 # TODO use_of_shellcheck           # linuxMag HS 10 p.78
 # TODO use_of_test_u_with_bats     # linuxMag HS 10 p.81
 
