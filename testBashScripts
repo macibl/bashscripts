@@ -1,11 +1,8 @@
 #!/bin/bash
-<<<<<<< HEAD
-# lot of examples
+# lot of bash use examples
 # launch with: bash testBashScripts
-=======
 #
 # see all bash details here http://mywiki.wooledge.org/FullBashGuide
->>>>>>> 6283795f231d5852ae25f29504be72717d85e3c9
 #
 set -euo pipefail   # -e exit immediately if error, -u give error if you reference a variable not previously defined
                     # -o pipefail exit if any error in a pipe
@@ -28,12 +25,12 @@ echo "one level upper directory: ${__root}"
 
 # define 1st params (else you get an "unbound variable error" with option -u)
 par1="${1:-}"     # init to "" if unset
-echo "1st param is: ${arg1}"
+echo "1st param is: ${par1}"
 # other ways to define, uncomment if used
 #par1="${1:-toto}"  # init to "toto" if unset
-#echo "1st param is: ${arg1}"
+#echo "1st param is: ${par1}"
 #par1="${1:+titi}"  # init to "titi" if already set
-#echo "1st param is: ${arg1}"
+#echo "1st param is: ${par1}"
 
 par2="${2:-}"     # init to "" if unset
 par3="${3:-}"     # init to "" if unset
@@ -574,7 +571,7 @@ main() {
 #  parameter_expansion_substring_array
 #  parameter_expansion_substitution    #  TO BE CONTINUED
 #   use_conditions "$@"
-   arithmetic
+  arithmetic
 # TODO parameter_expansion
 
 # TODO working with indexed array
