@@ -325,7 +325,8 @@ echo "${!titi}"     # will display 222
 
 parameter_expansion_substring() {
 # see https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
-
+# see https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion
+#
 toto="abcdefghijkl"
 
 #  ${#parameter}     give length of parameter in number of characters
@@ -540,6 +541,30 @@ var=0
  echo "value of var is unchanged: ${var}"  # will display 2
 }
 
+use_arrays_to_list_files() {
+# see http://mywiki.wooledge.org/FullBashGuide#Arrays
+# An array being a numbered list of strings, it maps integers to strings.
+# This does NOT work in the general case:
+# files=$(ls ~/*.jpg); cp $files /backups/     # Remember to always avoid using ls
+# This DOES work in the general case:
+#  files=(~/*.html); cp "${files[@]}" /tmp/
+# see also https://www.gnu.org/software/bash/manual/bash.html#Arrays
+
+  touch ~/titi.jpg
+  touch ~/toto.jpg
+  touch ~/tutu.jpg
+  jpg_path_files=(~/*.jpg)
+  echo "List of jpg files with path is (on one line):"
+  echo "${jpg_path_files[@]}"
+  echo "List of jpg files with path is (separated by first char of IFS):"
+  echo "${jpg_path_files[*]}"
+  echo "List of jpg files is:"
+  for fich in "${jpg_path_files[@]}"; do  echo "$(basename ${fich})"; done
+  echo "List of jpg files (without extension) is:"
+  for fich in "${jpg_path_files[@]}"; do  echo "$(basename ${fich} .jpg)"; done
+  
+}
+
 user_menu_simple() {
 # doesn't loop if wrong value given, directly exit in that case
 # use with one parameter like: bash testBashScripts toto
@@ -581,7 +606,7 @@ main() {
 #  error_treatment2          # using if ! command ; then
 #  error_treatment_with_mv_command
 #  check_file
-  command_substitution      # like $(cat toto.txt)
+#  command_substitution      # like $(cat toto.txt)
 #  parameter_expansion_indirection
 #  parameter_expansion_substring
 #  parameter_expansion_substring_positional_parameter  abcdefghij  
@@ -593,6 +618,7 @@ main() {
 #  arithmetic
 # TODO parameter_expansion
 # TODO working with indexed array
+  use_arrays_to_list_files
 # TODO access to remote server using ssh and command execution without password 
 # TODO working with sed and awk (use Linux Mag HS102)
 #  user_menu_simple
